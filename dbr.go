@@ -16,10 +16,12 @@ func Open(driver, dsn string, log EventReceiver) (*Connection, error) {
 	if log == nil {
 		log = nullReceiver
 	}
+
 	conn, err := sql.Open(driver, dsn)
 	if err != nil {
 		return nil, err
 	}
+
 	var d Dialect
 	switch driver {
 	case "mysql":
@@ -31,6 +33,11 @@ func Open(driver, dsn string, log EventReceiver) (*Connection, error) {
 	default:
 		return nil, ErrNotSupported
 	}
+
+	return OpenRaw(conn, d, log)
+}
+
+func OpenRaw(conn *sql.DB, d Dialect, log EventReceiver) (*Connection, error)  {
 	return &Connection{DB: conn, EventReceiver: log, Dialect: d}, nil
 }
 
